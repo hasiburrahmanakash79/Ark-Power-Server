@@ -32,6 +32,9 @@ async function run() {
     const newsCollection = client
       .db("Ark-Power-LTD")
       .collection("newsAndEvents");
+    const careerCollection = client
+      .db("Ark-Power-LTD")
+      .collection("career");
 
     app.get("/products", async (req, res) => {
       const result = await productsCollection.find().toArray();
@@ -57,6 +60,13 @@ async function run() {
     app.post("/news", async (req, res) => {
       const addNews = req.body;
       const result = await newsCollection.insertOne(addNews);
+      res.send(result);
+    });
+
+
+    app.post("/career", async (req, res) => {
+      const addCareer = req.body;
+      const result = await careerCollection.insertOne(addCareer);
       res.send(result);
     });
 
