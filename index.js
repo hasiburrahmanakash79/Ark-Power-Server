@@ -63,11 +63,26 @@ async function run() {
       res.send(result);
     });
 
+    // GET route to fetch data
+  app.get("/career", async (req, res) => {
+    try {
+      const careers = await careerCollection.find().toArray();
+      res.send(careers);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      res.status(500).send('Error fetching documents');
+    }
+  });
 
     app.post("/career", async (req, res) => {
-      const addCareer = req.body;
-      const result = await careerCollection.insertOne(addCareer);
-      res.send(result);
+      try {
+        const addCareer = req.body;
+        const result = await careerCollection.insertOne(addCareer);
+        res.send(result);
+      } catch (error) {
+        console.error('Error inserting document:', error);
+        res.status(500).send('Error inserting document');
+      }
     });
 
     // Send a ping to confirm a successful connection
