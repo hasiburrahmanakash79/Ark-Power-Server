@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 3000;
 
@@ -46,6 +46,34 @@ async function run() {
       const result = await productsCollection.insertOne(addProducts);
       res.send(result);
     });
+
+    app.patch("/products/:id", async (req, res) => {
+      const productId = req.params.id;
+      const updatedFields = req.body;
+    
+      try {
+        const result = await productsCollection.updateOne(
+          { _id: new ObjectId(productId) },
+          { $set: updatedFields }
+        );
+    
+        if (result.matchedCount === 0) {
+          res.status(404).send({ message: "Product not found" });
+        } else {
+          res.send(result);
+        }
+      } catch (error) {
+        res.status(500).send({ message: "Error updating product", error });
+      }
+    });
+
+
+    app.delete('/products/:id', async(req, res) => {
+      const id = req.params.id;
+      const deleteID = {_id: new ObjectId(id)}
+      const result = await productsCollection.deleteOne(deleteID)
+      res.send(result)
+    })
 
     app.get("/news", async (req, res) => {
       try {
