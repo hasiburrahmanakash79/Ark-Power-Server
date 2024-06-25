@@ -90,6 +90,12 @@ async function run() {
       const result = await newsCollection.insertOne(addNews);
       res.send(result);
     });
+    app.delete('/news/:id', async(req, res) => {
+      const id = req.params.id;
+      const deleteID = {_id: new ObjectId(id)}
+      const result = await newsCollection.deleteOne(deleteID)
+      res.send(result)
+    })
 
     // GET route to fetch data
   app.get("/career", async (req, res) => {
