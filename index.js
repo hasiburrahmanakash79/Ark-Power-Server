@@ -47,26 +47,22 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/products/:id", async (req, res) => {
-      const productId = req.params.id;
-      const updatedFields = req.body;
-    
-      try {
-        const result = await productsCollection.updateOne(
-          { _id: new ObjectId(productId) },
-          { $set: updatedFields }
-        );
-    
-        if (result.matchedCount === 0) {
-          res.status(404).send({ message: "Product not found" });
-        } else {
-          res.send(result);
-        }
-      } catch (error) {
-        res.status(500).send({ message: "Error updating product", error });
-      }
+    app.put("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          imageUrl: update.imageUrl,
+          price: update.price,
+          name: update.name,
+          description: update.description,
+        },
+      };
+      const result = await productsCollection.updateOne(query, updateDoc, options);
+      res.send(result);
     });
-
 
     app.delete('/products/:id', async(req, res) => {
       const id = req.params.id;
