@@ -86,6 +86,24 @@ async function run() {
       const result = await newsCollection.insertOne(addNews);
       res.send(result);
     });
+    
+    app.put("/news/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          imageUrl: update.imageUrl,
+          date: update.date,
+          title: update.title,
+          details: update.details,
+        },
+      };
+      const result = await newsCollection.updateOne(query, updateDoc, options);
+      res.send(result);
+    });
+
     app.delete('/news/:id', async(req, res) => {
       const id = req.params.id;
       const deleteID = {_id: new ObjectId(id)}
