@@ -36,35 +36,25 @@ async function run() {
     const usersCollection = client.db("Ark-Power-LTD").collection("users");
     const careerCollection = client.db("Ark-Power-LTD").collection("career");
 
-    // app.post("/jwt", (req, res) => {
-    //   const user = req.body;
-    //   console.log(user);
-    //   const token = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {
-    //     expiresIn: "1h",
-    //   });
-    //   res.send({ token });
-    // });
     //JWT
     app.post("/jwt", (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {
-        expiresIn: "7d",
+        expiresIn: "1h",
       });
-      console.log(token);
       res.send({ token });
     });
 
-    
-app.post('/users', async (req, res) => {
-  const user = req.body;
-  const query = { email: user.email };
-  const existingUser = await usersCollection.findOne(query);
-  if (existingUser) {
-    return res.send([]);
-  }
-  const result = await usersCollection.insertOne(user);
-  res.send(result);
-});
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email };
+      const existingUser = await usersCollection.findOne(query);
+      if (existingUser) {
+        return res.send([]);
+      }
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
 
     app.get("/products", async (req, res) => {
       const result = await productsCollection.find().toArray();
