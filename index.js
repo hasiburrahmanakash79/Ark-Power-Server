@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
@@ -32,9 +33,38 @@ async function run() {
     const newsCollection = client
       .db("Ark-Power-LTD")
       .collection("newsAndEvents");
-    const careerCollection = client
-      .db("Ark-Power-LTD")
-      .collection("career");
+    const usersCollection = client.db("Ark-Power-LTD").collection("users");
+    const careerCollection = client.db("Ark-Power-LTD").collection("career");
+
+    // app.post("/jwt", (req, res) => {
+    //   const user = req.body;
+    //   console.log(user);
+    //   const token = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {
+    //     expiresIn: "1h",
+    //   });
+    //   res.send({ token });
+    // });
+    //JWT
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {
+        expiresIn: "7d",
+      });
+      console.log(token);
+      res.send({ token });
+    });
+
+    
+app.post('/users', async (req, res) => {
+  const user = req.body;
+  const query = { email: user.email };
+  const existingUser = await usersCollection.findOne(query);
+  if (existingUser) {
+    return res.send([]);
+  }
+  const result = await usersCollection.insertOne(user);
+  res.send(result);
+});
 
     app.get("/products", async (req, res) => {
       const result = await productsCollection.find().toArray();
@@ -60,16 +90,20 @@ async function run() {
           description: update.description,
         },
       };
-      const result = await productsCollection.updateOne(query, updateDoc, options);
+      const result = await productsCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
       res.send(result);
     });
 
-    app.delete('/products/:id', async(req, res) => {
+    app.delete("/products/:id", async (req, res) => {
       const id = req.params.id;
-      const deleteID = {_id: new ObjectId(id)}
-      const result = await productsCollection.deleteOne(deleteID)
-      res.send(result)
-    })
+      const deleteID = { _id: new ObjectId(id) };
+      const result = await productsCollection.deleteOne(deleteID);
+      res.send(result);
+    });
 
     app.get("/news", async (req, res) => {
       try {
@@ -86,7 +120,7 @@ async function run() {
       const result = await newsCollection.insertOne(addNews);
       res.send(result);
     });
-    
+
     app.put("/news/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -104,23 +138,23 @@ async function run() {
       res.send(result);
     });
 
-    app.delete('/news/:id', async(req, res) => {
+    app.delete("/news/:id", async (req, res) => {
       const id = req.params.id;
-      const deleteID = {_id: new ObjectId(id)}
-      const result = await newsCollection.deleteOne(deleteID)
-      res.send(result)
-    })
+      const deleteID = { _id: new ObjectId(id) };
+      const result = await newsCollection.deleteOne(deleteID);
+      res.send(result);
+    });
 
     // GET route to fetch data
-  app.get("/career", async (req, res) => {
-    try {
-      const careers = await careerCollection.find().toArray();
-      res.send(careers);
-    } catch (error) {
-      console.error('Error fetching documents:', error);
-      res.status(500).send('Error fetching documents');
-    }
-  });
+    app.get("/career", async (req, res) => {
+      try {
+        const careers = await careerCollection.find().toArray();
+        res.send(careers);
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+        res.status(500).send("Error fetching documents");
+      }
+    });
 
     app.post("/career", async (req, res) => {
       try {
@@ -128,17 +162,17 @@ async function run() {
         const result = await careerCollection.insertOne(addCareer);
         res.send(result);
       } catch (error) {
-        console.error('Error inserting document:', error);
-        res.status(500).send('Error inserting document');
+        console.error("Error inserting document:", error);
+        res.status(500).send("Error inserting document");
       }
     });
 
-    app.delete('/career/:id', async(req, res) => {
+    app.delete("/career/:id", async (req, res) => {
       const id = req.params.id;
-      const deleteID = {_id: new ObjectId(id)}
-      const result = await careerCollection.deleteOne(deleteID)
-      res.send(result)
-    })
+      const deleteID = { _id: new ObjectId(id) };
+      const result = await careerCollection.deleteOne(deleteID);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
