@@ -61,6 +61,32 @@ async function run() {
       res.send(result);
     });
 
+    //make admin
+    app.patch("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const filterId = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: "admin",
+        },
+      };
+      const result = await usersCollection.updateOne(filterId, updateDoc);
+      res.send(result);
+    });
+
+    //make Suspend
+    app.patch("/suspend/:id", async (req, res) => {
+      const id = req.params.id;
+      const filterId = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: "suspend",
+        },
+      };
+      const result = await usersCollection.updateOne(filterId, updateDoc);
+      res.send(result);
+    });
+
     app.get("/products", async (req, res) => {
       const result = await productsCollection.find().toArray();
       res.send(result);
