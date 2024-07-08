@@ -56,6 +56,7 @@ async function run() {
       .collection("newsAndEvents");
     const usersCollection = client.db("Ark-Power-LTD").collection("users");
     const careerCollection = client.db("Ark-Power-LTD").collection("career");
+    const subscriberCollection = client.db("Ark-Power-LTD").collection("subscriber");
 
     //JWT
     app.post("/jwt", (req, res) => {
@@ -233,6 +234,17 @@ async function run() {
       const id = req.params.id;
       const deleteID = { _id: new ObjectId(id) };
       const result = await careerCollection.deleteOne(deleteID);
+      res.send(result);
+    });
+
+    app.get("/subscriber", async (req, res) => {
+      const result = await subscriberCollection.find().toArray();
+      res.send(result);
+    });
+    // POST method
+    app.post("/subscriber", async (req, res) => {
+      const subscribe = req.body;
+      const result = await subscriberCollection.insertOne(subscribe);
       res.send(result);
     });
 
