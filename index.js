@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
+const { Parser } = require('json2csv');
+const fs = require('fs');
+const path = require('path');
 const port = process.env.PORT || 3000;
 
 // Middle ware
@@ -247,6 +250,78 @@ async function run() {
       const result = await subscriberCollection.insertOne(subscribe);
       res.send(result);
     });
+
+
+    app.get('/subscriberDownload', async (req, res) => {
+      try {
+        const users = await subscriberCollection.find().toArray();
+        const json2csvParser = new Parser();
+        const csv = json2csvParser.parse(users);
+        const filePath = path.join(__dirname, 'subscriber.csv');
+        fs.writeFileSync(filePath, csv);
+        res.download(filePath, 'subscriber.csv', (err) => {
+          if (err) {
+            console.log(err);
+          }
+          fs.unlinkSync(filePath);
+        });
+      } catch (err) {
+        res.status(500).send(err.toString());
+      }
+    });
+    app.get('/productsDownload', async (req, res) => {
+      try {
+        const users = await productsCollection.find().toArray();
+        const json2csvParser = new Parser();
+        const csv = json2csvParser.parse(users);
+        const filePath = path.join(__dirname, 'products.csv');
+        fs.writeFileSync(filePath, csv);
+        res.download(filePath, 'products.csv', (err) => {
+          if (err) {
+            console.log(err);
+          }
+          fs.unlinkSync(filePath);
+        });
+      } catch (err) {
+        res.status(500).send(err.toString());
+      }
+    });
+    app.get('/usersDownload', async (req, res) => {
+      try {
+        const users = await usersCollection.find().toArray();
+        const json2csvParser = new Parser();
+        const csv = json2csvParser.parse(users);
+        const filePath = path.join(__dirname, 'users.csv');
+        fs.writeFileSync(filePath, csv);
+        res.download(filePath, 'users.csv', (err) => {
+          if (err) {
+            console.log(err);
+          }
+          fs.unlinkSync(filePath);
+        });
+      } catch (err) {
+        res.status(500).send(err.toString());
+      }
+    });
+
+    app.get('/newsDownload', async (req, res) => {
+      try {
+        const news = await newsCollection.find().toArray();
+        const json2csvParser = new Parser();
+        const csv = json2csvParser.parse(news);
+        const filePath = path.join(__dirname, 'news.csv');
+        fs.writeFileSync(filePath, csv);
+        res.download(filePath, 'news.csv', (err) => {
+          if (err) {
+            console.log(err);
+          }
+          fs.unlinkSync(filePath);
+        });
+      } catch (err) {
+        res.status(500).send(err.toString());
+      }
+    });
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
