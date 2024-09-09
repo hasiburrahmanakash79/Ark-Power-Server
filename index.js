@@ -60,6 +60,7 @@ async function run() {
     const usersCollection = client.db("Ark-Power-LTD").collection("users");
     const careerCollection = client.db("Ark-Power-LTD").collection("career");
     const subscriberCollection = client.db("Ark-Power-LTD").collection("subscriber");
+    const footerCollection = client.db("Ark-Power-LTD").collection("footer");
 
     //JWT
     app.post("/jwt", (req, res) => {
@@ -320,6 +321,44 @@ async function run() {
       } catch (err) {
         res.status(500).send(err.toString());
       }
+    });
+
+
+    app.get("/footer", async (req, res) => {
+      const result = await footerCollection.find().toArray();
+      res.send(result);
+    });
+    // POST method
+    app.post("/footer", async (req, res) => {
+      const addFooter = req.body;
+      const result = await footerCollection.insertOne(addFooter);
+      res.send(result);
+    });
+
+    app.put("/footer/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          address: update.address,
+          salesContact: update.salesContact,
+          supportContact: update.supportContact,
+          email: update.email,
+          facebookUrl: update.facebookUrl,
+          youtubeUrl: update.youtubeUrl,
+          instagramUrl: update.instagramUrl,
+          twitterUrl: update.twitterUrl,
+          telegramUrl: update.telegramUrl,
+        },
+      };
+      const result = await footerCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      res.send(result);
     });
 
 
