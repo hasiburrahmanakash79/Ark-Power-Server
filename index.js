@@ -4,9 +4,9 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-const { Parser } = require('json2csv');
-const fs = require('fs');
-const path = require('path');
+const { Parser } = require("json2csv");
+const fs = require("fs");
+const path = require("path");
 const port = process.env.PORT || 3000;
 
 // Middle ware
@@ -59,8 +59,13 @@ async function run() {
       .collection("newsAndEvents");
     const usersCollection = client.db("Ark-Power-LTD").collection("users");
     const careerCollection = client.db("Ark-Power-LTD").collection("career");
-    const subscriberCollection = client.db("Ark-Power-LTD").collection("subscriber");
+    const subscriberCollection = client
+      .db("Ark-Power-LTD")
+      .collection("subscriber");
     const footerCollection = client.db("Ark-Power-LTD").collection("footer");
+    const heroImagesCollection = client
+      .db("Ark-Power-LTD")
+      .collection("hero-image");
 
     //JWT
     app.post("/jwt", (req, res) => {
@@ -252,15 +257,14 @@ async function run() {
       res.send(result);
     });
 
-
-    app.get('/subscriberDownload', async (req, res) => {
+    app.get("/subscriberDownload", async (req, res) => {
       try {
         const users = await subscriberCollection.find().toArray();
         const json2csvParser = new Parser();
         const csv = json2csvParser.parse(users);
-        const filePath = path.join(__dirname, 'subscriber.csv');
+        const filePath = path.join(__dirname, "subscriber.csv");
         fs.writeFileSync(filePath, csv);
-        res.download(filePath, 'subscriber.csv', (err) => {
+        res.download(filePath, "subscriber.csv", (err) => {
           if (err) {
             console.log(err);
           }
@@ -270,14 +274,14 @@ async function run() {
         res.status(500).send(err.toString());
       }
     });
-    app.get('/productsDownload', async (req, res) => {
+    app.get("/productsDownload", async (req, res) => {
       try {
         const users = await productsCollection.find().toArray();
         const json2csvParser = new Parser();
         const csv = json2csvParser.parse(users);
-        const filePath = path.join(__dirname, 'products.csv');
+        const filePath = path.join(__dirname, "products.csv");
         fs.writeFileSync(filePath, csv);
-        res.download(filePath, 'products.csv', (err) => {
+        res.download(filePath, "products.csv", (err) => {
           if (err) {
             console.log(err);
           }
@@ -287,14 +291,14 @@ async function run() {
         res.status(500).send(err.toString());
       }
     });
-    app.get('/usersDownload', async (req, res) => {
+    app.get("/usersDownload", async (req, res) => {
       try {
         const users = await usersCollection.find().toArray();
         const json2csvParser = new Parser();
         const csv = json2csvParser.parse(users);
-        const filePath = path.join(__dirname, 'users.csv');
+        const filePath = path.join(__dirname, "users.csv");
         fs.writeFileSync(filePath, csv);
-        res.download(filePath, 'users.csv', (err) => {
+        res.download(filePath, "users.csv", (err) => {
           if (err) {
             console.log(err);
           }
@@ -305,14 +309,14 @@ async function run() {
       }
     });
 
-    app.get('/newsDownload', async (req, res) => {
+    app.get("/newsDownload", async (req, res) => {
       try {
         const news = await newsCollection.find().toArray();
         const json2csvParser = new Parser();
         const csv = json2csvParser.parse(news);
-        const filePath = path.join(__dirname, 'news.csv');
+        const filePath = path.join(__dirname, "news.csv");
         fs.writeFileSync(filePath, csv);
-        res.download(filePath, 'news.csv', (err) => {
+        res.download(filePath, "news.csv", (err) => {
           if (err) {
             console.log(err);
           }
@@ -322,6 +326,92 @@ async function run() {
         res.status(500).send(err.toString());
       }
     });
+
+    // GET method to fetch all hero images
+    app.get("/hero-images", async (req, res) => {
+      try {
+        const result = await heroImagesCollection.find().toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ error: "Failed to fetch hero images" });
+      }
+    });
+
+    // POST method to add a new hero image
+    app.post("/hero-images", async (req, res) => {
+      const newImage = req.body;
+      try {
+        const result = await heroImagesCollection.insertOne(newImage);
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ error: "Failed to add hero image" });
+      }
+    });
+
+    // app.put("/hero-images/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) };
+    //   const update = req.body;
+    //   const updateDoc = {
+    //     $set: {
+    //       url: update.url,
+    //     },
+    //   };
+    
+    //   console.log("Updating document with ID:", id);
+    //   console.log("Update document:", updateDoc);
+    
+    //   try {
+    //     const result = await heroImagesCollection.updateOne(query, updateDoc);
+    
+    //     if (result.modifiedCount === 0) {
+    //       res.status(404).json({ error: "No document was updated. Check if the URL is different." });
+    //     } else {
+    //       res.send(result);
+    //     }
+    //   } catch (error) {
+    //     console.error("Failed to update hero image:", error);
+    //     res.status(500).json({ error: "Failed to update hero image" });
+    //   }
+    // });
+    app.put("/hero-images/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = req.body;
+    
+      console.log("Update body:", update);
+    
+      const updateDoc = {
+        $set: {
+          image: update.image, // Update the 'image' field
+          url: update.image // Set 'url' to an empty string
+        },
+      };
+    
+      console.log("Updating document with ID:", id);
+      console.log("Update document:", updateDoc);
+    
+      try {
+        const result = await heroImagesCollection.updateOne(query, updateDoc);
+    
+        console.log("Update result:", result); // Log the result
+    
+        if (result.matchedCount === 0) {
+          res.status(404).json({ error: "Document not found" });
+        } else if (result.modifiedCount === 0) {
+          res.status(200).json({ message: "No changes made to the document" });
+        } else {
+          res.send(result);
+        }
+      } catch (error) {
+        console.error("Failed to update hero image:", error);
+        res.status(500).json({ error: "Failed to update hero image" });
+      }
+    });
+    
+    
+    
+    
 
 
     app.get("/footer", async (req, res) => {
@@ -360,7 +450,6 @@ async function run() {
       );
       res.send(result);
     });
-
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
