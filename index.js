@@ -357,13 +357,13 @@ async function run() {
     //       url: update.url,
     //     },
     //   };
-    
+
     //   console.log("Updating document with ID:", id);
     //   console.log("Update document:", updateDoc);
-    
+
     //   try {
     //     const result = await heroImagesCollection.updateOne(query, updateDoc);
-    
+
     //     if (result.modifiedCount === 0) {
     //       res.status(404).json({ error: "No document was updated. Check if the URL is different." });
     //     } else {
@@ -378,24 +378,24 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const update = req.body;
-    
+
       console.log("Update body:", update);
-    
+
       const updateDoc = {
         $set: {
           image: update.image, // Update the 'image' field
-          url: update.image // Set 'url' to an empty string
+          url: update.image, // Set 'url' to an empty string
         },
       };
-    
+
       console.log("Updating document with ID:", id);
       console.log("Update document:", updateDoc);
-    
+
       try {
         const result = await heroImagesCollection.updateOne(query, updateDoc);
-    
+
         console.log("Update result:", result); // Log the result
-    
+
         if (result.matchedCount === 0) {
           res.status(404).json({ error: "Document not found" });
         } else if (result.modifiedCount === 0) {
@@ -408,11 +408,19 @@ async function run() {
         res.status(500).json({ error: "Failed to update hero image" });
       }
     });
-    
-    
-    
-    
 
+    // DELETE method to remove an image by id
+    app.delete("/hero-images/:id", async (req, res) => {
+      const { id } = req.params;
+      try {
+        const result = await heroImagesCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ error: "Failed to delete the image" });
+      }
+    });
 
     app.get("/footer", async (req, res) => {
       const result = await footerCollection.find().toArray();
