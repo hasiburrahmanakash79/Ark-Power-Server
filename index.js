@@ -383,8 +383,8 @@ async function run() {
 
       const updateDoc = {
         $set: {
-          image: update.image, // Update the 'image' field
-          url: update.image, // Set 'url' to an empty string
+          image: update.image,
+          url: update.image,
         },
       };
 
