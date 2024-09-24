@@ -239,6 +239,32 @@ async function run() {
       }
     });
 
+    app.put("/career/:id", async (req, res) => {
+      const { id } = req.params; // Get the career ID from URL params
+      const updatedCareer = req.body; // The updated career details from the request body
+    
+      try {
+        const filter = { _id: new ObjectId(id) }; // Find the career by its MongoDB ObjectId
+        const updateDoc = {
+          $set: updatedCareer, // Update the fields passed in the request body
+        };
+    
+        const result = await careerCollection.updateOne(filter, updateDoc);
+    
+        if (result.modifiedCount > 0) {
+          res.send({
+            message: "Career updated successfully",
+            result,
+          });
+        } else {
+          res.status(404).send("Career not found or no changes were made.");
+        }
+      } catch (error) {
+        console.error("Error updating document:", error);
+        res.status(500).send("Error updating document");
+      }
+    });
+
     app.delete("/career/:id", async (req, res) => {
       const id = req.params.id;
       const deleteID = { _id: new ObjectId(id) };
